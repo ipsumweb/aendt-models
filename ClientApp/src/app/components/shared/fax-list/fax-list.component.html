@@ -1,0 +1,31 @@
+
+<div class="card" *ngIf="dataLoaded">
+  <div class="card-header">
+    Fax Status
+  </div>
+  <table class="table" *ngIf="faxes.length">
+    <tr>
+      <th>Sent Date</th>
+      <th>Status</th>
+      <th>Pages Sent</th>
+      <th># Attempts</th>
+      <th>View Fax</th>
+    </tr>
+    <tr *ngFor="let fax of faxes">
+      <td>{{fax.CreateDate  | date: 'short'}}</td>
+      <td>
+        <span *ngIf="fax.Status == 0">Sent</span>
+        <span *ngIf="fax.Status == -11">Pre-processing</span>
+        <span *ngIf="fax.Status != 0 && fax.Status != -11"><a href="https://www.interfax.net/en/help/error_codes" target="_blank">Find out</a> (error code {{fax.Status}})</span>
+      </td>
+      <td>{{fax.PagesSent}}</td>
+      <td>{{fax.AttemptsMade}}</td>
+      <td><span class="btn btn-link" (click)="viewFaxImage(fax.InterfaxID)">View</span></td>
+    </tr>
+  </table>
+  <div class="card-body" *ngIf="!faxes.length">
+    No faxes exist for this record. Use the buttons above to send a fax.
+  </div>
+
+  <img src="{{imgSrc}}" *ngIf="imgSrc" />
+</div>

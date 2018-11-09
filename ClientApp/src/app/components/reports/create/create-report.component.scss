@@ -1,0 +1,20 @@
+.card {
+  margin-bottom: 30px;
+}
+
+.input-group-text {
+  width: 150px;
+}
+
+.list-group-item:hover {
+  cursor: pointer;
+}
+
+input.ng-touched.ng-invalid,
+input.ng-dirty.ng-invalid {
+  border: 1px solid red;
+}
+
+#headingOne:hover {
+  cursor: pointer;
+}

@@ -1,0 +1,73 @@
+<div class="container">
+
+  <div class="d-flex justify-content-between">
+    <h3>Diagnostic Report Search</h3>
+
+    <span class="btn btn-link mb-2" (click)="getAllReports();">Show all records</span>
+  </div>
+
+  <div class="input-group mb-5 mr-sm-2">
+    <div class="input-group-prepend">
+      <div class="input-group-text"><i class="fas fa-search"></i></div>
+    </div>
+    <input type="text" class="form-control" placeholder="Search..."
+           [(ngModel)]="searchString"
+           (keyup)="runSearch();" />
+  </div>
+
+  <div class="text-center lead text-secondary mt-5 p-5 scroller"
+       *ngIf="searchString.length && showSearchResults && !searchResults.length">
+    No records match your search.
+  </div>
+
+  <div class="scroller" *ngIf="(searchString.length && showSearchResults && searchResults.length) || showAllRecords">
+    <table class="table">
+      <thead>
+        <tr>
+          <th class="border-top-0">Patient Name</th>
+          <th class="border-top-0">DOB</th>
+          <th class="border-top-0">Location</th>
+          <th class="border-top-0">DRS</th>
+          <th class="border-top-0">Gender</th>
+          <th class="border-top-0">Image Capture Date</th>
+          <th class="border-top-0">Reviewer</th>
+          <th class="border-top-0">Report Create Date</th>
+          <th class="border-top-0">&nbsp;</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of searchResults" [routerLink]="['/reports/view-detail/', item.ID]">
+          <td>
+            {{item.PatientName}}
+          </td>
+          <td>
+            {{item.DOB | date: 'MM/dd/yyyy'}}
+          </td>
+          <td>
+            {{item.Location}}
+          </td>
+          <td>
+            {{item.DRS}}
+          </td>
+          <td>
+            {{item.Gender ? 'F' : 'M'}}
+          </td>
+          <td>
+            {{item.ImageCaptureDateTime | date: 'short'}}
+          </td>
+          <td>
+            <span *ngIf="item.user">
+              {{item.User.FullUserName}}
+            </span>
+          </td>
+          <td>
+            {{item.CreateDate | date: 'MM/dd/yyyy'}}
+          </td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TODO  --- add pager component here -->
+</div>

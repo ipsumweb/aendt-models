@@ -1,0 +1,150 @@
+<cm-growler></cm-growler>
+
+<div *ngIf="!report && dataLoaded" class="text-center container">
+  That report doesn't exist, or was having some difficulty loading.
+</div>
+
+
+<!-- misc extra container - so the back button doesn't show in the report detail -->
+<div class="container" *ngIf="report">
+  <a class="btn btn-light btn-sm" routerLink="/">&laquo; Back</a>
+</div>
+
+
+<!-- for testing only -->
+<div class="container text-center">
+  <h3>for testing only</h3>
+  <div class="btn-group" *ngIf="sendingFax">
+    <span class="btn btn-outline-secondary" >Sending...</span>
+  </div>
+  <div class="btn-group" *ngIf="!sendingFax">
+    <div class="btn btn-outline-secondary" [class.disabled]="sendingFax" (click)="sendFax(1)">Send sample success fax</div>
+    <div class="btn btn-outline-secondary" [class.disabled]="sendingFax" (click)="sendFax(0)">Send sample failure fax<</div>
+  </div>
+</div>
+
+<div class="container my-5">
+  <app-fax-list [reportID]="reportID"></app-fax-list>
+</div>
+
+
+<div class="container" id="capture" *ngIf="report">
+  <h4 aria-role="heading" class="text-center mb-3">Diagnostic Report Detail for <b>{{report.PatientName}}</b></h4>
+
+  <!-- patient info -->
+  <table class="table table-bordered first-bold">
+    <tr>
+      <th colspan="2" class="text-light bg-secondary">Patient Information</th>
+    </tr>
+    <tr>
+      <td class="w-25">Name:</td>
+      <td>{{report.PatientName}}</td>
+    </tr>
+    <tr>
+      <td>Medical Record Number:</td>
+      <td>{{report.DRS}}</td>
+    </tr>
+    <tr>
+      <td>Date of Birth:</td>
+      <td>{{report.DOB | date: 'MM/dd/yyyy'}}</td>
+    </tr>
+    <tr>
+      <td>Date of Image Capture:</td>
+      <td>{{report.ImageCaptureDateTime | date: 'short'}}</td>
+    </tr>
+    <tr>
+      <td>Referring Clinic:</td>
+      <td>{{report.Location}}</td>
+    </tr>
+  </table>
+
+  <!-- eyeball images-->
+  <table class="table table-bordered" style="table-layout: fixed;">
+    <tr>
+      <th colspan="2" class="text-light bg-secondary">Retinal Image Assessment</th>
+    </tr>
+    <!--<tr> images of eyeballs to come </tr>-->
+    <tr>
+      <td><b>Right Eye (OD)</b></td>
+      <td><b>Left Eye (OS)</b></td>
+    </tr>
+    <tr>
+      <td>
+        <span *ngFor="let r of rightICD">
+          {{r.Summary}}
+        </span>
+        <span *ngIf="!rightICD.length">
+          (none)
+        </span>
+      </td>
+      <td>
+        <span *ngFor="let l of leftICD">
+          {{l.Summary}}
+        </span>
+        <span *ngIf="!leftICD.length">
+          (none)
+        </span>
+      </td>
+    </tr>
+    <tr *ngIf="!rightICD.length && !leftICD.length" class="bg-light">
+      <td><b>General</b></td>
+      <td>{{generalICD ? generalICD : '(none)'}}</td>
+    </tr>
+  </table>
+
+  <!-- ICD-10 codes -->
+  <table class="table table-bordered">
+    <tr>
+      <th colspan="2" class="text-light bg-secondary">ICD-10 Diagnosis Codes</th>
+    </tr>
+    <tr *ngFor="let code of reportCodes">
+      <td class="w-25">{{code.ICD10.Code}}</td>
+      <td>{{code.ICD10.Description}}</td>
+    </tr>
+    <tr *ngIf="report.LeftEyeOther">
+      <td>Left eye, 'other':</td>
+      <td>{{report.LeftEyeOther}}</td>
+    </tr>
+    <tr *ngIf="report.RightEyeOther">
+      <td>Right eye, 'other':</td>
+      <td>{{report.RightEyeOther}}</td>
+    </tr>
+  </table>
+
+  <!-- management plan -->
+  <table class="table table-bordered">
+    <tr>
+      <th colspan="3" class="text-light bg-secondary">Recommendation and Management Plan</th>
+    </tr>
+    <tr>
+      <td>{{referringPlan}}</td>
+      <td>Timeline: {{referringTimeline}}</td>
+      <td>Referred to: {{referringTo}}</td>
+    </tr>
+  </table>
+
+  <!-- comments -->
+  <table class="table table-bordered">
+    <tr>
+      <th colspan="2" class="text-light bg-secondary">Comments</th>
+    </tr>
+    <tr>
+      <td>{{dataLoaded && report.Comments ? report.Comments : '(none)'}}</td>
+    </tr>
+  </table>
+
+  <div class="card">
+    <div class="card-body">
+      Reviewing Physician: {{reviewer.FullUserName}}, MD<br>
+      KY License Number: {{reviewer.KYLicenseNumber}}<br>
+      Report Generated on: {{report.CreateDate | date: 'short' }}
+
+      <img src="{{reviewer.signatureURL}}" class="img-fluid sig"/>
+    </div>
+  </div>
+</div>
+
+<!-- misc extra container - so the back button doesn't show in the report detail -->
+<div class="container mt-5" *ngIf="report">
+  <a class="btn btn-light btn-sm" routerLink="/">&laquo; Back</a>
+</div>

@@ -1,0 +1,337 @@
+<cm-growler></cm-growler>
+
+<div class="container">
+  <form [formGroup]="reportForm" (ngSubmit)="onSubmit()">
+    <h4 aria-role="heading" class="text-center">Diagnostic Report Entry</h4>
+    <hr/>
+
+
+    <div class="card">
+      <div class="card-header">
+        <h5>
+          Patient Information <br/>
+          <small>Copy &amp; paste demographic information; <b>all fields are required</b></small>
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row mb-0">
+          <div class="col-sm-4">
+            <div class="form-group">
+              <textarea rows="6" class="form-control"
+                        [(ngModel)]="pastedData"
+                        [ngModelOptions]="{standalone: true}"
+                        placeholder="Paste exam information here"> </textarea>
+            </div>
+            <span class="btn btn-outline-primary btn-block" (click)="parse();">
+              <i class="fas fa-cog"></i>
+              Parse Demographic Data
+            </span>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-group input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">Patient Name</div>
+              </div>
+              <input formControlName="PatientName" required class="form-control"/>
+              <span asp-validation-for="DiagnosticReport.PatientName" class="text-danger"></span>
+            </div>
+            <div class="form-group input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">Location</div>
+              </div>
+              <input formControlName="Location" class="form-control"/>
+              <span asp-validation-for="DiagnosticReport.Location" class="text-danger"></span>
+            </div>
+            <div class="form-group  input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">DRS</div>
+              </div>
+              <input formControlName="DRS" class="form-control"/>
+              <span asp-validation-for="DiagnosticReport.DRS" class="text-danger"></span>
+            </div>
+            <div class="form-group  input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">DOB</div>
+              </div>
+              <input formControlName="DOB" class="form-control"/>
+              <span asp-validation-for="DiagnosticReport.DOB" class="text-danger"></span>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-group input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">Gender</div>
+              </div>
+              <select formControlName="Gender" class="form-control">
+                <option value="" disabled selected>-- select --</option>
+                <option value="M">male</option>
+                <option value="F">female</option>
+                <option value="O">other</option>
+              </select>
+              <span asp-validation-for="DiagnosticReport.Gender" class="text-danger"></span>
+            </div>
+            <div class="form-group  input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">Patient Code</div>
+              </div>
+              <input formControlName="PatientCode" class="form-control"/>
+              <span asp-validation-for="DiagnosticReport.PatientCode" class="text-danger"></span>
+            </div>
+            <div class="form-group  input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">Image Timestamp</div>
+              </div>
+              <input type='text' formControlName="ImageCaptureDateTime" class="form-control"/>
+
+              <span asp-validation-for="DiagnosticReport.ImageCaptureDateTime" class="text-danger"></span>
+            </div>
+
+            <span class="text-danger lead"
+                  *ngIf="submitted && !demographicFormCheck()">
+              All patient information is required.
+            </span>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h5>
+          General Eye Diagnosis
+          <span class="btn btn-sm btn-link float-right" (click)="clearGeneral()">clear all</span>
+        </h5>
+      </div>
+
+      <div class="row mb-0">
+        <div class="col-sm-12">
+          <div class="list-group list-group-default list-group-flush mb-0" id="B">
+            <div class="list-group-item"
+                 [class.active]="item.active"
+                 (click)="toggleGeneralICDActive(item)"
+                 *ngFor="let item of generalICD">
+              {{item.Summary}}
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+    <div class="card" *ngIf="!generalICDSelected">
+      <div class="card-header">
+        <h5>
+          Retinal Image Assessment
+        </h5>
+      </div>
+      <div class="card-body" id="eyeballs">
+        <span class="text-danger lead"
+              *ngIf="submitted && !eyeCodesCheck()">
+          Please choose at least one diagnosis below.
+        </span>
+        <div class="row">
+          <div class="col-sm-6">
+            <p>
+              <b>Right Eye Diagnosis (one or more)</b>
+              <span class="btn btn-sm btn-link float-right" (click)="clearRightAssessment()">clear all</span>
+            </p>
+            <div class="list-group list-group-default">
+              <div class="list-group-item"
+                   [class.active]="item.active"
+                   (click)="toggleRightICDActive(item)"
+                   *ngFor="let item of rightICD">
+                {{item.Summary}}
+              </div>
+              <div class="list-group-item"
+                   [class.active]="reportForm.get('RightEyeOther').value">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">Other:</div>
+                  </div>
+                  <input class="form-control" type="text" formControlName="RightEyeOther"/>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <p>
+              <b>Left Eye Diagnosis (one or more)</b>
+              <span class="btn btn-sm btn-link float-right" (click)="clearLeftAssessment()">clear all</span>
+            </p>
+            <div class="list-group list-group-default">
+              <div class="list-group-item"
+                   [class.active]="item.active"
+                   (click)="toggleLeftICDActive(item)"
+                   *ngFor="let item of leftICD">
+                {{item.Summary}}
+              </div>
+              <div class="list-group-item"
+                   [class.active]="reportForm.get('LeftEyeOther').value">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">Other:</div>
+                  </div>
+                  <input class="form-control" type="text" formControlName="LeftEyeOther"/>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h5>
+          Recommendation &amp; Management Plan
+          <span class="btn btn-sm btn-link float-right"
+                (click)="clearManagementPlans()">clear all</span>
+        </h5>
+      </div>
+      <div class="card-body">
+        <span class="text-danger lead" *ngIf="submitted && !referralPlansCheck()">
+        Please choose at least one item from all 3 boxes below.</span>
+
+        <div class="row mb-0">
+          <div class="col-sm-5">
+            <p><b>Management Plan </b></p>
+            <div class="list-group list-group-default mb-0">
+              <div class="list-group-item"
+                   [class.active]="item.active"
+                   (click)="chooseManagementPlan(item)"
+                   *ngFor="let item of mgmtPlans">
+                {{item.Description}}
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <p><b>Referral</b></p>
+            <div class="list-group list-group-default">
+              <div class="list-group-item"
+                   [class.active]="item.active"
+                   (click)="chooseReferralPlan(item)"
+                   *ngFor="let item of referrals">
+                {{item.Description}}
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <p><b>Timeframe</b></p>
+            <div class="list-group list-group-default mb-0">
+              <div class="list-group-item"
+                   [class.active]="item.active"
+                   (click)="chooseTimeframePlan(item)"
+                   *ngFor="let item of times">
+                {{item.Description}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h5>
+          Comments
+        </h5>
+      </div>
+      <div class="card-body">
+        <input type="text" formControlName="Comments" class="form-control" placeholder="(optional)"/>
+        <span asp-validation-for="DiagnosticReport.Comments" class="text-danger"></span>
+      </div>
+    </div>
+
+    <div id="accordion">
+      <div class="card">
+        <div class="card-header" id="headingOne">
+          <h5 class="mb-0" (click)="isCollapsed = !isCollapsed"
+              [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample">
+
+            <span *ngIf="isCollapsed"><i class="fa fa-plus-circle"></i> &nbsp; Show</span>
+            <span *ngIf="!isCollapsed"><i class="fa fa-minus-circle"></i> &nbsp;Hide</span>
+
+            Grading Protocol
+          </h5>
+        </div>
+
+        <div id="collapseExample" [ngbCollapse]="isCollapsed">
+          <div class="card-body">
+            <img src="assets/images/grading-protocol.jpg" class="img-fluid"/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <button class="btn float-right btn-success">
+        <i class="fas fa-check"></i> Create
+      </button>
+      <a class="btn btn-light" routerLink="/">&laquo; Cancel</a>
+    </div>
+
+  </form>
+</div>
+
+<script type="text/javascript">
+
+  $(document).ready(function () {
+
+
+    // they're clcking to submit the form
+    $("#submit").click(function () {
+      // first check if they filled out all of the input fields
+      var vals = $("form").serializeArray();
+      let clean = true;
+      vals.forEach(function (item, index) {
+        // value is empty (except for comments which are optional), show error
+        if (!item.value && item.name !== 'DiagnosticReport.Comments') {
+          clean = false;
+          $("[name='" + item.name + "'").css('background', '#f7d2d2');
+        }
+      });
+
+      // did they choose at least one diagnosis?
+      var diagnoses = $("#eyeballs .list-group-item.active");
+      if (!diagnoses.length) {
+        $("#diagnosis-error").show();
+        clean = false;
+      }
+
+      // did they choose at least one item from mgmt plan, ref rec, and timeframe rec
+      var mgmt = $("#choose-mgmt-plan .list-group-item.active");
+      var ref = $("#referral .list-group-item.active");
+      var timeframe = $("#timeframe .list-group-item.active");
+      if (!mgmt.length || !ref.length || !timeframe.length) {
+        $("#ref-error").show();
+        clean = false;
+      }
+
+      if (!clean) {
+        $("#any-page-error").show();
+        $("html, body").animate({scrollTop: 0}, 1000);
+        return;
+      }
+
+      // if we got this far, need to compile the various clickables into items to send for post
+
+      // first, all the eyeball diagnoses which can be in one big list
+      var eyeDiagnoses = [];
+
+      $("#eyeballs .list-group-item.active").each(function (item, index) {
+        eyeDiagnoses.push($(this).attr('data-item-value'));
+      });
+
+      // get the data object together with the clickables which aren't official form elements
+      vals['DiagnosticReport.ManagementPlan'] = mgmt.attr('data-item-value');
+      vals['managementPlanReferralOpt'] = ref.attr('data-item-value');
+      vals['managementPlanTimeframeOpt'] = timeframe.attr('data-item-value');
+
+    });
+  });
+
+</script>
